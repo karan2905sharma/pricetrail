@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PriceTrail</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="7" fill="var(--brand)"/><path d="M5.5 15.5l3.6-3.8 3 2.6 5.4-6.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17.5" cy="8" r="1.7" fill="#fff"/></svg>
+      <h1>PriceTrail</h1>
+      <span class="sp"></span>
+      <button class="icon-btn" id="openTab" title="Open in a tab"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4.5v11.5H16V12M11 4h5v5M16 4l-7 7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="icon-btn" id="toggleSettings" title="Settings" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    </header>
+
+    <div id="updateBanner" class="update" hidden>
+      <div class="update-text"><b>PriceTrail <span id="updLatest"></span> is available</b>
+        <span>You have <span id="updCurrent"></span>. Your price history is kept.</span></div>
+      <div class="update-actions">
+        <a id="updDownload" class="btn primary" target="_blank" rel="noopener noreferrer">Download</a>
+        <a id="updHow" class="link" target="_blank" rel="noopener noreferrer">How to update</a>
+      </div>
+    </div>
+
+    <main id="listView">
+      <section class="summary">
+        <div class="tile"><span>Tracking</span><b id="sumTracked">0</b></div>
+        <div class="tile"><span>Price drops</span><b id="sumDrops" class="good">0</b></div>
+        <div class="tile run"><span id="sumRun">Not checked yet</span><button id="checkNow" class="link">Check now</button></div>
+      </section>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="tracked" aria-selected="true">Tracked <em id="cntTracked">0</em></button>
+        <button role="tab" data-tab="viewed" aria-selected="false">Recently viewed <em id="cntViewed">0</em></button>
+      </div>
+
+      <input id="search" class="search" type="search" placeholder="Filter products…" aria-label="Filter products">
+      <ul id="list" class="list"></ul>
+      <div id="empty" class="empty" hidden></div>
+    </main>
+
+    <main id="settingsView" hidden>
+      <section class="group">
+        <h2>Background price checks</h2>
+        <label class="line">Check tracked products every
+          <select id="setInterval">
+            <option value="3">3 hours</option><option value="6">6 hours</option>
+            <option value="12">12 hours</option><option value="24">24 hours</option>
+          </select>
+        </label>
+        <label class="line toggle"><span>Alert on any price drop<small>Otherwise only when your target price is reached</small></span>
+          <input type="checkbox" id="setAnyDrop"><i class="knob"></i></label>
+      </section>
+
+      <section class="group">
+        <h2>Older price history</h2>
+        <label class="line toggle"><span>Find older prices on archive.org<small>When you open a product for the first time, PriceTrail reads saved copies of its page from the Wayback Machine</small></span>
+          <input type="checkbox" id="setArchive"><i class="knob"></i></label>
+      </section>
+
+      <section class="group">
+        <h2>Compare prices on</h2>
+        <div id="setSites" class="sites"></div>
+        <p class="hint">Stores that render results only in their app can't always be read — PriceTrail then shows a search link instead.</p>
+      </section>
+
+      <section class="group">
+        <h2>On product pages</h2>
+        <label class="line toggle"><span>Show the PriceTrail panel</span>
+          <input type="checkbox" id="setWidget"><i class="knob"></i></label>
+      </section>
+
+      <section class="group">
+        <h2>Your data</h2>
+        <p class="hint">Everything is stored only in this browser. PriceTrail only contacts the shops it compares, archive.org (older prices) and Keepa (only if you open its chart).</p>
+        <div class="buttons">
+          <button class="btn ghost" id="exportBtn">Export backup</button>
+          <button class="btn ghost" id="importBtn">Import backup</button>
+          <button class="btn danger" id="clearBtn">Clear all data</button>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <p id="dataMsg" class="hint" role="status"></p>
+      </section>
+
+      <section class="group" id="updatesGroup">
+        <h2>Updates</h2>
+        <div class="line"><span id="updStatus">Installed version <b id="setVersion"></b></span>
+          <button class="btn ghost" id="checkUpdateBtn">Check for updates</button></div>
+      </section>
+    </main>
+
+    <footer class="foot">Works on Amazon.in, Flipkart, Croma, Reliance Digital, Tata CLiQ, Myntra and AJIO<br>
+      <span id="verLine"></span></footer>
+  </div>
+  <script src="../lib/config.js"></script>
+  <script src="../lib/sites.js"></script>
+  <script src="../lib/util.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

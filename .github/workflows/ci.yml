@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      # The fixture server impersonates the shops on https://…:443
+      - name: Allow the test server to use port 443
+        run: sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
+
+      - name: End-to-end tests (real extension in Chromium)
+        run: npm run test:e2e
+        env:
+          SCREENSHOTS: '1'
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: tests/.tmp/shots
+          if-no-files-found: ignore
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pricetrail-build
+          path: dist/*.zip

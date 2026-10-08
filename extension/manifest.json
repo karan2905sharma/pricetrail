@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "PriceTrail — Price History & Compare",
+  "short_name": "PriceTrail",
+  "version": "1.2.0",
+  "description": "Price history and store comparison for Amazon.in, Flipkart, Croma, Reliance Digital and more, with price-drop alerts.",
+  "minimum_chrome_version": "116",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt0tCoPD1pvjq1GRzk2P/HGrslLAu9DjCrUOCPJSAHCPnd6xRM+lu0imTxKcHaijKR2UuO3zMnvcbcAgi60jcK1WJQ+HI/6p396+q3UQ7OXzRO70YpVi2O7vQkBWku5w12SIiApFU93cFNWle68zIsMnpiofVFUYe0hEXRahaPgLz5SVzP3X8EflnST+BihUtbP2m3UGvchNNwtEeW4bFuFLESHqyxncijGmYpB7VgapUn3QAmwSm/1JnK8aTueSSqRd6cfw6IfTONUW1jTegUgwkX7OzxC9HWDpgr4CfBC6JIjRNku3TWYBgP7e44gwfuVE8mJFSg1gzYUbT/qZZNQIDAQAB",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "PriceTrail",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://www.amazon.in/*",
+    "https://www.flipkart.com/*",
+    "https://www.croma.com/*",
+    "https://www.reliancedigital.in/*",
+    "https://www.tatacliq.com/*",
+    "https://www.myntra.com/*",
+    "https://www.ajio.com/*",
+    "https://api.croma.com/*",
+    "https://web.archive.org/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.amazon.in/*",
+        "https://www.flipkart.com/*",
+        "https://www.croma.com/*",
+        "https://www.reliancedigital.in/*",
+        "https://www.tatacliq.com/*",
+        "https://www.myntra.com/*",
+        "https://www.ajio.com/*"
+      ],
+      "js": [
+        "lib/sites.js",
+        "lib/extract.js",
+        "lib/util.js",
+        "content/widget.js",
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

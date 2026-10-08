@@ -1,0 +1,65 @@
+name: Release
+
+# Runs when you push a version tag, e.g. `npm run release -- 1.3.0 && git push --follow-tags`
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CWS_CONFIGURED: ${{ secrets.CWS_REFRESH_TOKEN != '' && secrets.CWS_EXTENSION_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check the tag matches the manifest version
+        run: |
+          VERSION=$(node -p "require('./extension/manifest.json').version")
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match manifest version $VERSION"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build zips
+        run: npm run build
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/changelog.mjs "$VERSION" > notes.md
+          if [ -s notes.md ]; then NOTES=(--notes-file notes.md); else NOTES=(--generate-notes); fi
+          gh release create "$GITHUB_REF_NAME" "dist/pricetrail-v$VERSION.zip" \
+            --title "PriceTrail v$VERSION" "${NOTES[@]}"
+
+      - name: Publish to Chrome Web Store
+        if: env.CWS_CONFIGURED == 'true'
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        run: npx chrome-webstore-upload --source "dist/pricetrail-v$VERSION-webstore.zip"
+
+      - name: Chrome Web Store not set up
+        if: env.CWS_CONFIGURED != 'true'
+        run: echo "::notice::No Chrome Web Store secrets, so this release went to GitHub only. See README → 'Publishing to the Chrome Web Store'."
